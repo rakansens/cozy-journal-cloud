@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -17,6 +17,7 @@ interface JournalSidebarProps {
   onSelectEntry: (entry: JournalEntry) => void;
   selectedDate: Date;
   onAddEntry: () => void;
+  onDeleteEntry: (date: Date) => void;
 }
 
 export const JournalSidebar = ({
@@ -24,6 +25,7 @@ export const JournalSidebar = ({
   onSelectEntry,
   selectedDate,
   onAddEntry,
+  onDeleteEntry,
 }: JournalSidebarProps) => {
   return (
     <Sidebar>
@@ -43,20 +45,32 @@ export const JournalSidebar = ({
       <SidebarContent>
         <div className="space-y-2 p-4">
           {entries.map((entry) => (
-            <Button
+            <div
               key={entry.date.toISOString()}
-              variant="ghost"
-              className={`w-full justify-start ${
-                format(entry.date, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")
-                  ? "bg-journal-accent"
-                  : ""
-              }`}
-              onClick={() => onSelectEntry(entry)}
+              className="flex items-center gap-2 group"
             >
-              <span className="text-sm text-journal-text">
-                {format(entry.date, "M月d日")}
-              </span>
-            </Button>
+              <Button
+                variant="ghost"
+                className={`flex-1 justify-start ${
+                  format(entry.date, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")
+                    ? "bg-journal-accent"
+                    : ""
+                }`}
+                onClick={() => onSelectEntry(entry)}
+              >
+                <span className="text-sm text-journal-text">
+                  {format(entry.date, "M月d日")}
+                </span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onDeleteEntry(entry.date)}
+                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
           ))}
         </div>
       </SidebarContent>
