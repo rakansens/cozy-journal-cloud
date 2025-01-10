@@ -9,6 +9,7 @@ import {
 
 interface JournalEntry {
   date: Date;
+  title: string;
   content: string;
 }
 
@@ -58,9 +59,16 @@ export const JournalSidebar = ({
                 }`}
                 onClick={() => onSelectEntry(entry)}
               >
-                <span className="text-sm text-journal-text">
-                  {format(entry.date, "M月d日")}
-                </span>
+                <div className="flex flex-col items-start">
+                  <span className="text-sm text-journal-text">
+                    {format(entry.date, "M月d日")}
+                  </span>
+                  {entry.title && (
+                    <span className="text-xs text-journal-muted truncate max-w-[150px]">
+                      {entry.title}
+                    </span>
+                  )}
+                </div>
               </Button>
               <Button
                 variant="ghost"

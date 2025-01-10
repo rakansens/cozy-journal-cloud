@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 interface Entry {
   date: Date;
+  title: string;
   content: string;
   createdAt: Date;
   updatedAt: Date;
@@ -16,6 +17,7 @@ const Index = () => {
   const [entries, setEntries] = useState<Entry[]>([
     { 
       date: new Date(), 
+      title: "",
       content: "", 
       createdAt: new Date(),
       updatedAt: new Date()
@@ -33,6 +35,16 @@ const Index = () => {
     );
   };
 
+  const handleTitleChange = (newTitle: string) => {
+    setEntries((prevEntries) =>
+      prevEntries.map((entry) =>
+        entry.date.toDateString() === selectedDate.toDateString()
+          ? { ...entry, title: newTitle, updatedAt: new Date() }
+          : entry
+      )
+    );
+  };
+
   const handleAddEntry = () => {
     const lastEntry = entries[entries.length - 1];
     const newDate = addDays(lastEntry.date, 1);
@@ -45,6 +57,7 @@ const Index = () => {
       const now = new Date();
       setEntries([...entries, { 
         date: newDate, 
+        title: "",
         content: "", 
         createdAt: now,
         updatedAt: now
@@ -65,7 +78,6 @@ const Index = () => {
         (entry) => entry.date.toDateString() !== dateToDelete.toDateString()
       );
       
-      // If we're deleting the currently selected entry, select the last entry
       if (dateToDelete.toDateString() === selectedDate.toDateString()) {
         setSelectedDate(newEntries[newEntries.length - 1].date);
       }
@@ -80,6 +92,7 @@ const Index = () => {
     (entry) => entry.date.toDateString() === selectedDate.toDateString()
   ) || { 
     date: selectedDate, 
+    title: "",
     content: "", 
     createdAt: new Date(),
     updatedAt: new Date()
@@ -98,8 +111,10 @@ const Index = () => {
         <main className="flex-1 p-8">
           <JournalEntry
             date={currentEntry.date}
+            title={currentEntry.title}
             content={currentEntry.content}
             onContentChange={handleContentChange}
+            onTitleChange={handleTitleChange}
             createdAt={currentEntry.createdAt}
             updatedAt={currentEntry.updatedAt}
           />

@@ -2,21 +2,26 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Calendar, Clock } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface JournalEntryProps {
   date: Date;
+  title: string;
   content: string;
   createdAt: Date;
   updatedAt: Date;
   onContentChange: (content: string) => void;
+  onTitleChange: (title: string) => void;
 }
 
 export const JournalEntry = ({ 
   date, 
+  title,
   content, 
   createdAt, 
   updatedAt, 
-  onContentChange 
+  onContentChange,
+  onTitleChange
 }: JournalEntryProps) => {
   return (
     <Card className="p-6 bg-journal-bg border border-journal-border">
@@ -38,6 +43,12 @@ export const JournalEntry = ({
           )}
         </div>
       </div>
+      <Input
+        className="mb-4 text-xl font-medium bg-transparent border-none focus:outline-none text-journal-text"
+        value={title}
+        onChange={(e) => onTitleChange(e.target.value)}
+        placeholder="タイトルを入力"
+      />
       <textarea
         className="w-full min-h-[300px] p-4 bg-transparent border-none focus:outline-none text-journal-text resize-none"
         value={content}
