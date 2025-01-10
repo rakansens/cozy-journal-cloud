@@ -48,13 +48,13 @@ const Index = () => {
 
   const handleAddEntry = () => {
     let newDate: Date;
-    let referenceDate = selectedDate; // 選択された日付を基準にする
+    let referenceDate = selectedDate;
 
     switch (selectedLevel) {
       case 'year':
         newDate = startOfYear(addYears(referenceDate, 1));
         break;
-      case 'month':
+      case 'month': {
         // 選択された月の最終日を取得
         const lastDayOfMonth = endOfMonth(referenceDate);
         // その月の最新のエントリーを探す
@@ -79,13 +79,15 @@ const Index = () => {
           newDate = startOfMonth(referenceDate);
         }
         break;
+      }
       default: // 'date'
         newDate = addDays(referenceDate, 1);
     }
     
-    const entryExists = entries.some(
-      entry => entry.date.toDateString() === newDate.toDateString()
-    );
+    // 日付の重複チェックを選択レベルに応じて行う
+    const entryExists = selectedLevel === 'date' 
+      ? entries.some(entry => entry.date.toDateString() === newDate.toDateString())
+      : false;
 
     if (!entryExists) {
       const now = new Date();
