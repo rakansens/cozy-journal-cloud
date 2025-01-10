@@ -76,8 +76,9 @@ const Index = () => {
       };
       
       setEntries(prevEntries => [...prevEntries, newEntry]);
+      // 新しいエントリーを追加した後、選択状態をリセット
       setSelectedDate(newDate);
-      setSelectedLevel(selectedLevel); // 選択レベルを明示的に維持
+      // 選択レベルは変更せず、現在の選択レベルを維持
       toast.success("新しい日記を作成しました");
     } else {
       toast.error("既に存在する日付です");
@@ -122,7 +123,6 @@ const Index = () => {
           entries={entries}
           onSelectEntry={(entry) => {
             setSelectedDate(entry.date);
-            setSelectedLevel('date');
           }}
           selectedDate={selectedDate}
           onAddEntry={handleAddEntry}
