@@ -25,6 +25,8 @@ interface JournalSidebarProps {
   selectedDate: Date;
   onAddEntry: () => void;
   onDeleteEntry: (date: Date) => void;
+  onSelectLevel: (level: 'year' | 'month' | 'date') => void;
+  selectedLevel: 'year' | 'month' | 'date';
 }
 
 interface GroupedEntries {
@@ -39,6 +41,8 @@ export const JournalSidebar = ({
   selectedDate,
   onAddEntry,
   onDeleteEntry,
+  onSelectLevel,
+  selectedLevel,
 }: JournalSidebarProps) => {
   const [expandedYears, setExpandedYears] = useState<string[]>([format(new Date(), 'yyyy')]);
   const [expandedMonths, setExpandedMonths] = useState<string[]>([format(new Date(), 'yyyy-MM')]);
@@ -101,8 +105,15 @@ export const JournalSidebar = ({
                 className="space-y-2"
               >
                 <CollapsibleTrigger
-                  onClick={() => toggleYear(year)}
-                  className="flex items-center w-full p-2 hover:bg-journal-accent rounded-md"
+                  onClick={() => {
+                    toggleYear(year);
+                    onSelectLevel('year');
+                  }}
+                  className={`flex items-center w-full p-2 hover:bg-journal-accent rounded-md ${
+                    selectedLevel === 'year' && format(selectedDate, 'yyyy') === year
+                      ? "bg-journal-accent"
+                      : ""
+                  }`}
                 >
                   {expandedYears.includes(year) ? (
                     <ChevronDown className="h-4 w-4 mr-1" />
@@ -121,8 +132,16 @@ export const JournalSidebar = ({
                         className="space-y-2"
                       >
                         <CollapsibleTrigger
-                          onClick={() => toggleMonth(`${year}-${month}`)}
-                          className="flex items-center w-full p-2 hover:bg-journal-accent rounded-md"
+                          onClick={() => {
+                            toggleMonth(`${year}-${month}`);
+                            onSelectLevel('month');
+                          }}
+                          className={`flex items-center w-full p-2 hover:bg-journal-accent rounded-md ${
+                            selectedLevel === 'month' && 
+                            format(selectedDate, 'yyyy-MM') === `${year}-${month}`
+                              ? "bg-journal-accent"
+                              : ""
+                          }`}
                         >
                           {expandedMonths.includes(`${year}-${month}`) ? (
                             <ChevronDown className="h-4 w-4 mr-1" />
@@ -142,11 +161,14 @@ export const JournalSidebar = ({
                                 <Button
                                   variant="ghost"
                                   className={`flex-1 justify-start ${
+                                    selectedLevel === 'date' &&
                                     format(entry.date, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")
                                       ? "bg-journal-accent"
                                       : ""
                                   }`}
-                                  onClick={() => onSelectEntry(entry)}
+                                  onClick={() => {
+                                    onSelectEntry(entry);
+                                  }}
                                 >
                                   <div className="flex flex-col items-start">
                                     <span className="text-sm text-journal-text">

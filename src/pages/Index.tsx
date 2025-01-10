@@ -2,7 +2,7 @@ import { useState } from "react";
 import { JournalEntry } from "@/components/JournalEntry";
 import { JournalSidebar } from "@/components/JournalSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { addDays } from "date-fns";
+import { addDays, addMonths, addYears, startOfMonth, startOfYear } from "date-fns";
 import { toast } from "sonner";
 
 interface Entry {
@@ -24,6 +24,7 @@ const Index = () => {
     },
   ]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedLevel, setSelectedLevel] = useState<'year' | 'month' | 'date'>('date');
 
   const handleContentChange = (newContent: string) => {
     setEntries((prevEntries) =>
@@ -47,7 +48,18 @@ const Index = () => {
 
   const handleAddEntry = () => {
     const lastEntry = entries[entries.length - 1];
-    const newDate = addDays(lastEntry.date, 1);
+    let newDate: Date;
+
+    switch (selectedLevel) {
+      case 'year':
+        newDate = startOfYear(addYears(lastEntry.date, 1));
+        break;
+      case 'month':
+        newDate = startOfMonth(addMonths(lastEntry.date, 1));
+        break;
+      default: // 'date'
+        newDate = addDays(lastEntry.date, 1);
+    }
     
     const entryExists = entries.some(
       entry => entry.date.toDateString() === newDate.toDateString()
@@ -64,6 +76,8 @@ const Index = () => {
       }]);
       setSelectedDate(newDate);
       toast.success("新しい日記を作成しました");
+    } else {
+      toast.error("既に存在する日付です");
     }
   };
 
@@ -103,10 +117,15 @@ const Index = () => {
       <div className="min-h-screen flex w-full bg-journal-bg">
         <JournalSidebar
           entries={entries}
-          onSelectEntry={(entry) => setSelectedDate(entry.date)}
+          onSelectEntry={(entry) => {
+            setSelectedDate(entry.date);
+            setSelectedLevel('date');
+          }}
           selectedDate={selectedDate}
           onAddEntry={handleAddEntry}
           onDeleteEntry={handleDeleteEntry}
+          onSelectLevel={setSelectedLevel}
+          selectedLevel={selectedLevel}
         />
         <main className="flex-1 p-8">
           <JournalEntry
