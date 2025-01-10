@@ -1,4 +1,4 @@
-import { format, startOfMonth } from "date-fns";
+import { format } from "date-fns";
 import { Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,14 +11,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 
 interface JournalEntry {
@@ -31,7 +23,7 @@ interface JournalSidebarProps {
   entries: JournalEntry[];
   onSelectEntry: (entry: JournalEntry) => void;
   selectedDate: Date;
-  onAddEntry: (date?: Date) => void;
+  onAddEntry: () => void;
   onDeleteEntry: (date: Date) => void;
 }
 
@@ -50,8 +42,6 @@ export const JournalSidebar = ({
 }: JournalSidebarProps) => {
   const [expandedYears, setExpandedYears] = useState<string[]>([format(new Date(), 'yyyy')]);
   const [expandedMonths, setExpandedMonths] = useState<string[]>([format(new Date(), 'yyyy-MM')]);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState<Date | undefined>(undefined);
 
   // エントリーを年と月でグループ化
   const groupedEntries = entries.reduce<GroupedEntries>((acc, entry) => {
@@ -85,40 +75,19 @@ export const JournalSidebar = ({
     );
   };
 
-  const handleMonthSelect = (date: Date | undefined) => {
-    if (date) {
-      setSelectedMonth(date);
-      onAddEntry(startOfMonth(date));
-      setIsCalendarOpen(false);
-    }
-  };
-
   return (
     <Sidebar>
       <SidebarHeader className="p-4 border-b border-journal-border">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-journal-text">日記一覧</h2>
-          <Dialog open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-            <DialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>月を選択</DialogTitle>
-              </DialogHeader>
-              <Calendar
-                mode="single"
-                selected={selectedMonth}
-                onSelect={handleMonthSelect}
-              />
-            </DialogContent>
-          </Dialog>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onAddEntry}
+            className="h-8 w-8"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
         </div>
       </SidebarHeader>
       <SidebarContent>
