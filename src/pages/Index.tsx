@@ -2,17 +2,8 @@ import { useState } from "react";
 import { JournalEntry } from "@/components/JournalEntry";
 import { JournalSidebar } from "@/components/JournalSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { addDays, startOfMonth } from "date-fns";
+import { addDays } from "date-fns";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
 
 interface Entry {
   date: Date;
@@ -33,8 +24,6 @@ const Index = () => {
     },
   ]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState<Date | undefined>(undefined);
 
   const handleContentChange = (newContent: string) => {
     setEntries((prevEntries) =>
@@ -57,39 +46,24 @@ const Index = () => {
   };
 
   const handleAddEntry = () => {
-    setIsCalendarOpen(true);
-  };
+    const lastEntry = entries[entries.length - 1];
+    const newDate = addDays(lastEntry.date, 1);
+    
+    const entryExists = entries.some(
+      entry => entry.date.toDateString() === newDate.toDateString()
+    );
 
-  const handleMonthSelect = (date: Date | undefined) => {
-    if (date) {
-      setSelectedMonth(date);
-    }
-  };
-
-  const handleAddMonth = () => {
-    if (selectedMonth) {
-      const newDate = startOfMonth(selectedMonth);
-      
-      const entryExists = entries.some(
-        entry => entry.date.toDateString() === newDate.toDateString()
-      );
-
-      if (!entryExists) {
-        const now = new Date();
-        setEntries(prevEntries => [...prevEntries, { 
-          date: newDate, 
-          title: "",
-          content: "", 
-          createdAt: now,
-          updatedAt: now
-        }]);
-        setSelectedDate(newDate);
-        setIsCalendarOpen(false);
-        setSelectedMonth(undefined);
-        toast.success("新しい月の日記を作成しました");
-      } else {
-        toast.error("選択した月の日記は既に存在します");
-      }
+    if (!entryExists) {
+      const now = new Date();
+      setEntries([...entries, { 
+        date: newDate, 
+        title: "",
+        content: "", 
+        createdAt: now,
+        updatedAt: now
+      }]);
+      setSelectedDate(newDate);
+      toast.success("新しい日記を作成しました");
     }
   };
 
@@ -145,33 +119,6 @@ const Index = () => {
             updatedAt={currentEntry.updatedAt}
           />
         </main>
-        <Dialog open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>月を選択</DialogTitle>
-            </DialogHeader>
-            <div className="flex flex-col items-center gap-4 p-4">
-              <Calendar
-                mode="single"
-                selected={selectedMonth}
-                onSelect={handleMonthSelect}
-                disabled={(date) =>
-                  entries.some(
-                    entry => entry.date.toDateString() === startOfMonth(date).toDateString()
-                  )
-                }
-              />
-              <div className="flex gap-2">
-                <Button onClick={handleAddMonth} disabled={!selectedMonth}>
-                  追加
-                </Button>
-                <Button variant="outline" onClick={() => setIsCalendarOpen(false)}>
-                  キャンセル
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     </SidebarProvider>
   );
