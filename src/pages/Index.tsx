@@ -77,6 +77,7 @@ const Index = () => {
       
       setEntries(prevEntries => [...prevEntries, newEntry]);
       setSelectedDate(newDate);
+      setSelectedLevel(selectedLevel); // 選択レベルを明示的に維持
       toast.success("新しい日記を作成しました");
     } else {
       toast.error("既に存在する日付です");
