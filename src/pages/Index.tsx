@@ -2,7 +2,7 @@ import { useState } from "react";
 import { JournalEntry } from "@/components/JournalEntry";
 import { JournalSidebar } from "@/components/JournalSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { addDays, addMonths, addYears, startOfMonth, startOfYear } from "date-fns";
+import { addDays, addMonths, addYears, startOfMonth, startOfYear, endOfMonth } from "date-fns";
 import { toast } from "sonner";
 
 interface Entry {
@@ -47,18 +47,40 @@ const Index = () => {
   };
 
   const handleAddEntry = () => {
-    const lastEntry = entries[entries.length - 1];
     let newDate: Date;
+    let referenceDate = selectedDate; // 選択された日付を基準にする
 
     switch (selectedLevel) {
       case 'year':
-        newDate = startOfYear(addYears(lastEntry.date, 1));
+        newDate = startOfYear(addYears(referenceDate, 1));
         break;
       case 'month':
-        newDate = startOfMonth(addMonths(lastEntry.date, 1));
+        // 選択された月の最終日を取得
+        const lastDayOfMonth = endOfMonth(referenceDate);
+        // その月の最新のエントリーを探す
+        const entriesInMonth = entries.filter(
+          entry => entry.date.getMonth() === referenceDate.getMonth() &&
+                  entry.date.getFullYear() === referenceDate.getFullYear()
+        );
+        
+        if (entriesInMonth.length > 0) {
+          // その月の最新の日付の翌日を設定
+          const latestEntry = entriesInMonth.reduce((latest, current) => 
+            current.date > latest.date ? current : latest
+          );
+          newDate = addDays(latestEntry.date, 1);
+          
+          // もし翌日が次の月になる場合は、新しい月の1日を設定
+          if (newDate.getMonth() !== referenceDate.getMonth()) {
+            newDate = startOfMonth(addMonths(referenceDate, 1));
+          }
+        } else {
+          // その月のエントリーがない場合は、月の1日を設定
+          newDate = startOfMonth(referenceDate);
+        }
         break;
       default: // 'date'
-        newDate = addDays(lastEntry.date, 1);
+        newDate = addDays(referenceDate, 1);
     }
     
     const entryExists = entries.some(
@@ -76,9 +98,7 @@ const Index = () => {
       };
       
       setEntries(prevEntries => [...prevEntries, newEntry]);
-      // 新しいエントリーを追加した後、選択状態をリセット
       setSelectedDate(newDate);
-      // 選択レベルは変更せず、現在の選択レベルを維持
       toast.success("新しい日記を作成しました");
     } else {
       toast.error("既に存在する日付です");
