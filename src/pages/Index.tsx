@@ -45,9 +45,8 @@ const Index = () => {
     );
   };
 
-  const handleAddEntry = () => {
-    const lastEntry = entries[entries.length - 1];
-    const newDate = addDays(lastEntry.date, 1);
+  const handleAddEntry = (date?: Date) => {
+    const newDate = date || addDays(entries[entries.length - 1].date, 1);
     
     const entryExists = entries.some(
       entry => entry.date.toDateString() === newDate.toDateString()
@@ -64,6 +63,8 @@ const Index = () => {
       }]);
       setSelectedDate(newDate);
       toast.success("新しい日記を作成しました");
+    } else {
+      toast.error("選択された日付の日記は既に存在します");
     }
   };
 
