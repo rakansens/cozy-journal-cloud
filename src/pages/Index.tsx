@@ -76,7 +76,6 @@ const Index = () => {
       };
       
       setEntries(prevEntries => [...prevEntries, newEntry]);
-      // 新しいエントリーを追加した後も、選択レベルは維持したまま
       setSelectedDate(newDate);
       toast.success("新しい日記を作成しました");
     } else {
