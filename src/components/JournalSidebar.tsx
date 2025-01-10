@@ -47,7 +47,6 @@ export const JournalSidebar = ({
   const [expandedYears, setExpandedYears] = useState<string[]>([format(new Date(), 'yyyy')]);
   const [expandedMonths, setExpandedMonths] = useState<string[]>([format(new Date(), 'yyyy-MM')]);
 
-  // エントリーを年と月でグループ化
   const groupedEntries = entries.reduce<GroupedEntries>((acc, entry) => {
     const year = format(entry.date, 'yyyy');
     const month = format(entry.date, 'MM');
@@ -69,6 +68,7 @@ export const JournalSidebar = ({
         ? prev.filter(y => y !== year)
         : [...prev, year]
     );
+    onSelectLevel('year');
   };
 
   const toggleMonth = (yearMonth: string) => {
@@ -77,6 +77,7 @@ export const JournalSidebar = ({
         ? prev.filter(m => m !== yearMonth)
         : [...prev, yearMonth]
     );
+    onSelectLevel('month');
   };
 
   return (
@@ -105,9 +106,9 @@ export const JournalSidebar = ({
                 className="space-y-2"
               >
                 <CollapsibleTrigger
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     toggleYear(year);
-                    onSelectLevel('year');
                   }}
                   className={`flex items-center w-full p-2 hover:bg-journal-accent rounded-md ${
                     selectedLevel === 'year' && format(selectedDate, 'yyyy') === year
@@ -132,9 +133,9 @@ export const JournalSidebar = ({
                         className="space-y-2"
                       >
                         <CollapsibleTrigger
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
                             toggleMonth(`${year}-${month}`);
-                            onSelectLevel('month');
                           }}
                           className={`flex items-center w-full p-2 hover:bg-journal-accent rounded-md ${
                             selectedLevel === 'month' && 
@@ -168,6 +169,7 @@ export const JournalSidebar = ({
                                   }`}
                                   onClick={() => {
                                     onSelectEntry(entry);
+                                    onSelectLevel('date');
                                   }}
                                 >
                                   <div className="flex flex-col items-start">
