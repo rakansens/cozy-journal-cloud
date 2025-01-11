@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 
 interface JournalEntry {
+  id: string;
   date: Date;
   title: string;
   content: string;
@@ -24,7 +25,7 @@ interface JournalSidebarProps {
   onSelectEntry: (entry: JournalEntry) => void;
   selectedDate: Date;
   onAddEntry: () => void;
-  onDeleteEntry: (date: Date) => void;
+  onDeleteEntry: (date: Date, id: string) => void;
   onSelectLevel: (level: 'year' | 'month' | 'date') => void;
   selectedLevel: 'year' | 'month' | 'date';
 }
@@ -156,7 +157,7 @@ export const JournalSidebar = ({
                             .sort((a, b) => b.date.getTime() - a.date.getTime())
                             .map((entry) => (
                               <div
-                                key={entry.date.toISOString()}
+                                key={entry.id}
                                 className="flex items-center gap-2 group"
                               >
                                 <Button
@@ -186,7 +187,7 @@ export const JournalSidebar = ({
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => onDeleteEntry(entry.date)}
+                                  onClick={() => onDeleteEntry(entry.date, entry.id)}
                                   className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
                                   <Trash2 className="h-4 w-4 text-destructive" />

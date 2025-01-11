@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Calendar, Clock } from "lucide-react";

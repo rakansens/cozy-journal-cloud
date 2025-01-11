@@ -2,10 +2,11 @@ import { useState } from "react";
 import { JournalEntry } from "@/components/JournalEntry";
 import { JournalSidebar } from "@/components/JournalSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { addDays, addMonths, addYears, startOfMonth, startOfYear, endOfMonth } from "date-fns";
+import { addDays, addMonths, addYears, startOfMonth, startOfYear } from "date-fns";
 import { toast } from "sonner";
 
 interface Entry {
+  id: string;
   date: Date;
   title: string;
   content: string;
@@ -16,6 +17,7 @@ interface Entry {
 const Index = () => {
   const [entries, setEntries] = useState<Entry[]>([
     { 
+      id: "1",
       date: new Date(), 
       title: "",
       content: "", 
@@ -26,20 +28,20 @@ const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedLevel, setSelectedLevel] = useState<'year' | 'month' | 'date'>('date');
 
-  const handleContentChange = (newContent: string) => {
+  const handleContentChange = (id: string, newContent: string) => {
     setEntries((prevEntries) =>
       prevEntries.map((entry) =>
-        entry.date.toDateString() === selectedDate.toDateString()
+        entry.id === id
           ? { ...entry, content: newContent, updatedAt: new Date() }
           : entry
       )
     );
   };
 
-  const handleTitleChange = (newTitle: string) => {
+  const handleTitleChange = (id: string, newTitle: string) => {
     setEntries((prevEntries) =>
       prevEntries.map((entry) =>
-        entry.date.toDateString() === selectedDate.toDateString()
+        entry.id === id
           ? { ...entry, title: newTitle, updatedAt: new Date() }
           : entry
       )
@@ -80,6 +82,7 @@ const Index = () => {
     if (!entryExists) {
       const now = new Date();
       const newEntry = { 
+        id: crypto.randomUUID(),
         date: newDate, 
         title: "",
         content: "", 
@@ -95,36 +98,42 @@ const Index = () => {
     }
   };
 
-  const handleDeleteEntry = (dateToDelete: Date) => {
-    if (entries.length <= 1) {
+  const handleAddBox = () => {
+    const now = new Date();
+    const newEntry = {
+      id: crypto.randomUUID(),
+      date: selectedDate,
+      title: "",
+      content: "",
+      createdAt: now,
+      updatedAt: now
+    };
+    
+    setEntries(prevEntries => [...prevEntries, newEntry]);
+    toast.success("新しいボックスを追加しました");
+  };
+
+  const handleDeleteEntry = (dateToDelete: Date, id: string) => {
+    const entriesForDate = entries.filter(
+      entry => entry.date.toDateString() === dateToDelete.toDateString()
+    );
+
+    if (entriesForDate.length <= 1) {
       toast.error("最後の日記は削除できません");
       return;
     }
 
     setEntries((prevEntries) => {
-      const newEntries = prevEntries.filter(
-        (entry) => entry.date.toDateString() !== dateToDelete.toDateString()
-      );
-      
-      if (dateToDelete.toDateString() === selectedDate.toDateString()) {
-        setSelectedDate(newEntries[newEntries.length - 1].date);
-      }
-      
+      const newEntries = prevEntries.filter(entry => entry.id !== id);
       return newEntries;
     });
     
     toast.success("日記を削除しました");
   };
 
-  const currentEntry = entries.find(
+  const currentEntries = entries.filter(
     (entry) => entry.date.toDateString() === selectedDate.toDateString()
-  ) || { 
-    date: selectedDate, 
-    title: "",
-    content: "", 
-    createdAt: new Date(),
-    updatedAt: new Date()
-  };
+  ).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   return (
     <SidebarProvider>
@@ -141,15 +150,28 @@ const Index = () => {
           selectedLevel={selectedLevel}
         />
         <main className="flex-1 p-8">
-          <JournalEntry
-            date={currentEntry.date}
-            title={currentEntry.title}
-            content={currentEntry.content}
-            onContentChange={handleContentChange}
-            onTitleChange={handleTitleChange}
-            createdAt={currentEntry.createdAt}
-            updatedAt={currentEntry.updatedAt}
-          />
+          <div className="space-y-6">
+            <div className="flex justify-end">
+              <button
+                onClick={handleAddBox}
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+              >
+                ボックスを追加
+              </button>
+            </div>
+            {currentEntries.map((entry) => (
+              <JournalEntry
+                key={entry.id}
+                date={entry.date}
+                title={entry.title}
+                content={entry.content}
+                onContentChange={(content) => handleContentChange(entry.id, content)}
+                onTitleChange={(title) => handleTitleChange(entry.id, title)}
+                createdAt={entry.createdAt}
+                updatedAt={entry.updatedAt}
+              />
+            ))}
+          </div>
         </main>
       </div>
     </SidebarProvider>
