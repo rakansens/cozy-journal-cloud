@@ -55,36 +55,24 @@ const Index = () => {
         newDate = startOfYear(addYears(referenceDate, 1));
         break;
       case 'month': {
-        // 選択された月の最終日を取得
-        const lastDayOfMonth = endOfMonth(referenceDate);
-        // その月の最新のエントリーを探す
-        const entriesInMonth = entries.filter(
-          entry => entry.date.getMonth() === referenceDate.getMonth() &&
-                  entry.date.getFullYear() === referenceDate.getFullYear()
+        newDate = startOfMonth(addMonths(referenceDate, 1));
+        
+        const monthExists = entries.some(entry => 
+          entry.date.getMonth() === newDate.getMonth() &&
+          entry.date.getFullYear() === newDate.getFullYear()
         );
         
-        if (entriesInMonth.length > 0) {
-          // その月の最新の日付の翌日を設定
-          const latestEntry = entriesInMonth.reduce((latest, current) => 
-            current.date > latest.date ? current : latest
-          );
-          newDate = addDays(latestEntry.date, 1);
-          
-          // もし翌日が次の月になる場合は、新しい月の1日を設定
-          if (newDate.getMonth() !== referenceDate.getMonth()) {
-            newDate = startOfMonth(addMonths(referenceDate, 1));
-          }
-        } else {
-          // その月のエントリーがない場合は、月の1日を設定
-          newDate = startOfMonth(referenceDate);
+        if (monthExists) {
+          toast.error("既に存在する月です");
+          return;
         }
         break;
       }
       default: // 'date'
         newDate = addDays(referenceDate, 1);
+        break;
     }
     
-    // 日付の重複チェックを選択レベルに応じて行う
     const entryExists = selectedLevel === 'date' 
       ? entries.some(entry => entry.date.toDateString() === newDate.toDateString())
       : false;
